@@ -4,6 +4,9 @@ public class Aristas {
     private Nodo origen;
     private Nodo destino;
     private int peso;
+    private int tiempoRecorrido;
+    private float costo;
+    private float numTransbordos;
 
     public Aristas(Nodo origen, Nodo destino, int peso) {
         this.origen = origen;
