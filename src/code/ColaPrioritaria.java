@@ -3,6 +3,9 @@ package code;
 public class ColaPrioritaria {
     private String nombre;
     private int peso;
+    private int tiempo;
+    private float costo;
+    private float numTransbordos;
 
     public ColaPrioritaria(String nombre, int peso) {
         this.nombre = nombre;
