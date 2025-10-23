@@ -51,72 +51,76 @@ public class Grafo {
         grafo.agregarNodo("B", 10, 15);
         grafo.agregarNodo("C", 10, 15);
 
-        grafo.agregarArista("A", "B", 5);
-        grafo.agregarArista("B", "C", 10);
-        grafo.agregarArista("A", "C", 12);
+        grafo.agregarArista("A", "B", 10);
+        grafo.agregarArista("B", "C", 5);
+        grafo.agregarArista("A", "C", 30);
 
         grafo.mostrarGrafo();
         grafo.dijkstra("A", "C");
         grafo.floydWarshall();
     }
 
-
     private void dijkstra(String inicio, String fin) {
         if (lugar.containsKey(inicio) && lugar.containsKey(fin)) {
-            HashMap<String, Integer> distancia = new HashMap<>();
-            HashMap<String, Integer> tiempoRecorrido = new HashMap<>();
-            HashMap<String, Float> costo = new HashMap<>();
-            HashMap<String, Integer> numTransbordo = new HashMap<>();
+            HashMap<String, Float> pesoTotal = new HashMap<>();
             HashMap<String, String> previo = new HashMap<>();
-            PriorityQueue<ColaPrioritaria> cola = new PriorityQueue<>(Comparator.comparingInt(ColaPrioritaria::getPeso));
+            HashSet<String> visitados = new HashSet<>();
+            PriorityQueue<ColaPrioritaria> cola = new PriorityQueue<>(Comparator.comparingDouble(ColaPrioritaria::getKm));
 
             for (String nodo : lugar.keySet()) {
-                distancia.put(nodo, Integer.MAX_VALUE);
-                tiempoRecorrido.put(nodo, Integer.MAX_VALUE);
-                costo.put(nodo, Float.MAX_VALUE);
-                numTransbordo.put(nodo, Integer.MAX_VALUE);
+                pesoTotal.put(nodo, Float.MAX_VALUE);
                 previo.put(nodo, null);
-
             }
 
-            distancia.put(inicio, 0);
-            tiempoRecorrido.put(inicio, 0);
-            costo.put(inicio, 0f);
-            numTransbordo.put(inicio, 0);
-            cola.add(new ColaPrioritaria(inicio, 0));
+            pesoTotal.put(inicio, 0.0f);
+            cola.add(new ColaPrioritaria(inicio, 0.0f));
+
             while (!cola.isEmpty()) {
                 ColaPrioritaria actual = cola.poll();
                 String nombreActual = actual.getNombre();
 
+                if (visitados.contains(nombreActual)) continue;
+                visitados.add(nombreActual);
+
                 for (Aristas arista : rutas.get(nombreActual)) {
                     String vecino = arista.getDestino().getNombre();
-                    int peso = arista.getPeso();
-                    int nuevaDistancia = distancia.get(nombreActual) + peso;
-                    float nuevoCosto = costo.get(nombreActual) + arista.getCosto();
-                    int nuevoTiempo = tiempoRecorrido.getOrDefault(nombreActual, 0) + arista.getTiempoRecorrido();
-                    int nuevoNumTransbordo = numTransbordo.getOrDefault(nombreActual, 0) + (arista.getNumTransbordos() > 0 ? 1 : 0);
 
+                    float nuevoPeso = pesoTotal.get(nombreActual)
+                            + arista.getPeso()
+                            + 1.0f * arista.getCosto()
+                            + 2.0f * arista.getTiempoRecorrido()
+                            + 1.0f * arista.getNumTransbordos();
 
-                    if (nuevaDistancia < distancia.get(vecino) && nuevoCosto < costo.get(vecino) && nuevoTiempo < tiempoRecorrido.getOrDefault(vecino, Integer.MAX_VALUE)
-                            && nuevoNumTransbordo < numTransbordo.getOrDefault(vecino, Integer.MAX_VALUE)) {
-                        distancia.put(vecino, nuevaDistancia);
-                        costo.put(vecino, (Float) nuevoCosto);
-                        tiempoRecorrido.put(vecino, nuevoTiempo);
-                        numTransbordo.put(vecino, nuevoNumTransbordo);
+                    if (nuevoPeso < pesoTotal.get(vecino) && !visitados.contains(vecino)) {
+                        pesoTotal.put(vecino, nuevoPeso);
                         previo.put(vecino, nombreActual);
-                        cola.add(new ColaPrioritaria(vecino, nuevaDistancia));
+                        cola.add(new ColaPrioritaria(vecino, nuevoPeso));
                     }
                 }
             }
-            System.out.println("Distancia mínima de " + inicio + " a " + fin + ": " + distancia.get(fin));
+
+            if (pesoTotal.get(fin) == Float.MAX_VALUE) {
+                System.out.println("No hay ruta disponible de " + inicio + " a " + fin);
+                return;
+            }
+
+            LinkedList<String> ruta = new LinkedList<>();
+            String actual = fin;
+            while (actual != null) {
+                ruta.addFirst(actual);
+                actual = previo.get(actual);
+            }
+
+            System.out.println("Ruta más eficiente: " + ruta);
+            System.out.println("Peso total: " + pesoTotal.get(fin));
         } else {
             System.out.println("Uno de los lugares no existe.");
         }
-
     }
 
+
+
     private void floydWarshall() {
-        // Implementación del algoritmo de Floyd-Warshall
         LinkedList<String> nombres = new LinkedList<>(lugar.keySet());
         HashMap<String, Integer> indice = new HashMap<>();
 
@@ -173,21 +177,16 @@ public class Grafo {
     private void generarEventoRandow() {
         // Implementación para generar eventos aleatorios en el grafo
         Random random = new Random();
-        int numEventos = random.nextInt(2) + 1;
-        switch (numEventos) {
-            case 1:
-            {
-
-            }
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-                break;
+        List<String> claves = new ArrayList<>(this.rutas.keySet());
+        String claveAleatoria = claves.get(random.nextInt(claves.size()));
+        LinkedList<Aristas> aristas = this.rutas.get(claveAleatoria);
+        if (aristas != null && !aristas.isEmpty()) {
+            Aristas aristaAleatoria = aristas.get(random.nextInt(aristas.size()));
+            String[] eventosPosibles = {"Accidente", "Manifestación", "LLuvias intensas", "Obras viales"};
+            String eventoSeleccionado = eventosPosibles[random.nextInt(eventosPosibles.length)];
+            aristaAleatoria.setPosibleEvento(eventoSeleccionado);
+            System.out.println("Evento generado en la ruta de " + aristaAleatoria.getOrigen().getNombre() + " a " + aristaAleatoria.getDestino().getNombre() + ": " + eventoSeleccionado);
         }
-
     }
 
     private void bellmanFord(String inicio) {

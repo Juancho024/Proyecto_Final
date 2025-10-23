@@ -2,14 +2,14 @@ package code;
 
 public class ColaPrioritaria {
     private String nombre;
-    private int peso;
+    private float km;
     private int tiempo;
     private float costo;
     private float numTransbordos;
 
-    public ColaPrioritaria(String nombre, int peso) {
+    public ColaPrioritaria(String nombre, float km) {
         this.nombre = nombre;
-        this.peso = peso;
+        this.km = km;
     }
 
     public String getNombre() {
@@ -20,11 +20,11 @@ public class ColaPrioritaria {
         this.nombre = nombre;
     }
 
-    public int getPeso() {
-        return peso;
+    public float getKm() {
+        return km;
     }
 
-    public void setPeso(int peso) {
-        this.peso = peso;
+    public void setKm(int km) {
+        this.km = km;
     }
 }

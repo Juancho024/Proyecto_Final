@@ -7,6 +7,7 @@ public class Aristas {
     private int tiempoRecorrido;
     private float costo;
     private float numTransbordos;
+    private String posibleEvento;
 
     public Aristas(Nodo origen, Nodo destino, int peso) {
         this.origen = origen;
@@ -14,13 +15,42 @@ public class Aristas {
         this.peso = peso;
     }
 
-    public Aristas(Nodo origen, Nodo destino, int peso, int tiempoRecorrido, float costo, float numTransbordos) {
+    public Aristas(Nodo origen, Nodo destino, int peso, int tiempoRecorrido, float costo, float numTransbordos, String posibleEvento) {
         this.origen = origen;
         this.destino = destino;
         this.peso = peso;
         this.tiempoRecorrido = tiempoRecorrido;
         this.costo = costo;
         this.numTransbordos = numTransbordos;
+        this.posibleEvento = posibleEvento;
+    }
+
+    private void ConsecuenciasEvento() {
+        // Lógica para manejar las consecuencias del evento
+        if(posibleEvento.equals("Accidente")) {
+            tiempoRecorrido *= 2;
+        }
+        if(posibleEvento.equals("Manifestación")) {
+            tiempoRecorrido *= 3;
+        }
+        if(posibleEvento.equals("LLuvias intensas")) {
+            costo *= 1.5;
+            tiempoRecorrido *= 2;
+        }
+        if(posibleEvento.equals("Obras viales")) {
+            tiempoRecorrido *= 2;
+            peso *= 1.5;
+        }
+        if(posibleEvento.equals("Normales")) {
+            tiempoRecorrido /= 2;
+        }
+    }
+
+    public String getPosibleEvento() {
+        return posibleEvento;
+    }
+    public void setPosibleEvento(String posibleEvento) {
+        this.posibleEvento = posibleEvento;
     }
 
     public Nodo getOrigen() {
